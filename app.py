@@ -14,7 +14,6 @@ PROXY_HEADER_TYPES = [
         'X-Client-Ip'
     ]
 TRUSTED_PROXIES = os.getenv('TRUSTED_PROXIES').split(',')
-print(TRUSTED_PROXIES)
 WHITELISTED_IPS = [ipaddress.ip_address(ip) for ip in os.getenv('WHITELISTED_IPS').split(',')]
 
 @auth.verify_token
