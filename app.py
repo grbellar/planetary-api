@@ -2,9 +2,11 @@ from flask import Flask, jsonify, request
 from flask_httpauth import HTTPTokenAuth
 from functions import docx_to_txt, pdf_to_markdown
 import os
-app = Flask(__name__)
 
+
+app = Flask(__name__)
 auth = HTTPTokenAuth(scheme='Planetary')
+
 
 @auth.verify_token
 def verify_token(token):
