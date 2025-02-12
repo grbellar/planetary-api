@@ -20,6 +20,7 @@ WHITELISTED_IPS = [ipaddress.ip_address(ip) for ip in os.getenv('WHITELISTED_IPS
 
 @auth.verify_token
 def verify_token(token):
+    print(token)
     if token == os.getenv('ACCESS_TOKEN'):
         return True
     return False
@@ -45,7 +46,7 @@ def allowed_ip(request):
 @app.post("/convert-to-text")
 @auth.login_required
 def convert():
-
+    print(request.headers)
     if not allowed_ip(request):
         return jsonify({"error": "Unauthorized"}), 401
     
