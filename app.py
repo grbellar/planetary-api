@@ -1,8 +1,10 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, send_file
 from flask_httpauth import HTTPTokenAuth
 from functions import docx_to_txt, pdf_to_markdown
 import os
 import ipaddress
+
+# TODO: If I'm going to be sending files back to the client, I may need to look into asynchronous processing. FastAPI has async support.
 
 app = Flask(__name__)
 auth = HTTPTokenAuth(scheme='Planetary')
@@ -74,3 +76,14 @@ def convert():
             return jsonify({"text": text}), 200
         except Exception as e:
             return jsonify({"error": str(e)}), 500
+
+# TODO: Add logging, especially for exceptions that currently pass silently
+
+
+@app.get("/get-file")
+def get_file():
+    file_path = 'spec.txt'
+    try:
+        return send_file(file_path, as_attachment=True, download_name='spec.txt')
+    except FileNotFoundError:
+        return "File not found", 404
