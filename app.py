@@ -20,7 +20,6 @@ WHITELISTED_IPS = [ipaddress.ip_address(ip) for ip in os.getenv('WHITELISTED_IPS
 
 @auth.verify_token
 def verify_token(token):
-    print(token)
     if token == os.getenv('ACCESS_TOKEN'):
         return True
     return False
