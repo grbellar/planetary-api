@@ -4,8 +4,7 @@ from functions import docx_to_txt, pdf_to_text
 import os
 import ipaddress
 
-# TODO: If I'm going to be sending files back to the client, I may need to look into asynchronous processing. FastAPI has async support.
-
+# TODO: Look into async support for multiple requests. FastAPI has async support. Maybe Flask does too.
 app = Flask(__name__)
 auth = HTTPTokenAuth(scheme='Planetary')
 PROXY_HEADER_TYPES = [
