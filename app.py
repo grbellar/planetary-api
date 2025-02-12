@@ -26,6 +26,7 @@ def verify_token(token):
     return False
 
 
+# Not used right now.
 def allowed_ip(request):
     if request.remote_addr in TRUSTED_PROXIES:
         for proxy_type in PROXY_HEADER_TYPES:
@@ -46,9 +47,6 @@ def allowed_ip(request):
 @app.post("/convert-to-text")
 @auth.login_required
 def convert():
-    print(request.headers)
-    if not allowed_ip(request):
-        return jsonify({"error": "Unauthorized"}), 401
     
     # Check if content-type is application/json
     if not request.is_json:
