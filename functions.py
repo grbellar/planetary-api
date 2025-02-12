@@ -32,10 +32,13 @@ def docx_to_txt(docx_path):
         doc = Document(local_docx_path)
         # Delete the temp file after the doc is created
         os.remove(local_docx_path)
-        text = []
+        text_parts = []
         for paragraph in doc.paragraphs:
-            text.append(paragraph.text)
-        return text
+            text = paragraph.text.strip()
+            if text:
+                text = text.replace('\t', ' ')
+                text_parts.append(text)
+        return " ".join(text_parts)
     except FileNotFoundError:
         raise DocumentConversionError("DOCX file not found")
     except Exception as e:
@@ -43,7 +46,6 @@ def docx_to_txt(docx_path):
 
 
 def pdf_to_text(pdf_path):
-    # TODO: Should strip the newline characters from the text
     local_pdf_path = create_temp_file_from_url(pdf_path)
     try:
         doc = pymupdf.open(local_pdf_path)
@@ -51,8 +53,10 @@ def pdf_to_text(pdf_path):
         os.remove(local_pdf_path)
         text = []
         for page in doc:
-            text.append(page.get_text())
-        return text
+            # Strip newlines and whitespace from each page's text
+            page_text = page.get_text().strip().replace('\n', ' ')
+            text.append(page_text)
+        return " ".join(text)
     except FileNotFoundError:
         raise DocumentConversionError("PDF file not found")
     except Exception as e:
