@@ -1,6 +1,6 @@
 from flask import Flask, jsonify, request, send_file
 from flask_httpauth import HTTPTokenAuth
-from functions import docx_to_txt, pdf_to_markdown
+from functions import docx_to_txt, pdf_to_text
 import os
 import ipaddress
 
@@ -72,7 +72,7 @@ def convert():
     # Convert PDF
     elif file_url.endswith('.pdf'):
         try:
-            text = pdf_to_markdown(file_url)
+            text = pdf_to_text(file_url)
             return jsonify({"text": text}), 200
         except Exception as e:
             return jsonify({"error": str(e)}), 500

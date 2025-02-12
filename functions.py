@@ -40,7 +40,7 @@ def docx_to_txt(docx_path):
         raise DocumentConversionError(f"Error processing DOCX file: {str(e)}")
 
 
-def pdf_to_markdown(pdf_path):
+def pdf_to_text(pdf_path):
     # TODO: Should strip the newline characters from the text
     local_pdf_path = create_temp_file_from_url(pdf_path)
     try:
