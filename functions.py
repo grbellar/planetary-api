@@ -3,6 +3,7 @@ import pymupdf
 import tempfile
 from urllib.request import urlretrieve
 import os
+import unicodedata
 
 
 class DocumentConversionError(Exception):
@@ -26,6 +27,23 @@ def create_temp_file_from_url(file_url):
             raise Exception(f"Failed to download file: {str(e)}")
 
 
+def normalize_text(text):
+    """Standardize text encoding and cleanup special characters"""
+    # Remove zero-width spaces and other invisible unicode characters
+    text = ''.join(char for char in text if not unicodedata.category(char).startswith('C'))
+    
+    # Normalize unicode characters (e.g., convert different forms of the same character to a standard form)
+    text = unicodedata.normalize('NFKC', text)
+    
+    # Replace unicode bullets with standard ASCII
+    text = text.replace('•', '*').replace('●', '*')
+    
+    # Standardize whitespace
+    text = ' '.join(text.split())
+    
+    return text
+
+
 def docx_to_txt(docx_path):
     local_docx_path = create_temp_file_from_url(docx_path)
     try:
@@ -38,7 +56,7 @@ def docx_to_txt(docx_path):
             if text:
                 text = text.replace('\t', ' ')
                 text_parts.append(text)
-        return " ".join(text_parts)
+        return normalize_text(" ".join(text_parts))
     except FileNotFoundError:
         raise DocumentConversionError("DOCX file not found")
     except Exception as e:
@@ -56,7 +74,7 @@ def pdf_to_text(pdf_path):
             # Strip newlines and whitespace from each page's text
             page_text = page.get_text().strip().replace('\n', ' ')
             text.append(page_text)
-        return " ".join(text)
+        return normalize_text(" ".join(text))
     except FileNotFoundError:
         raise DocumentConversionError("PDF file not found")
     except Exception as e:
