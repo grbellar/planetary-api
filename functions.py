@@ -4,6 +4,7 @@ import tempfile
 from urllib.request import urlretrieve
 import os
 import unicodedata
+import ftfy
 
 
 class DocumentConversionError(Exception):
@@ -28,18 +29,8 @@ def create_temp_file_from_url(file_url):
 
 
 def normalize_text(text):
-    """Standardize text encoding and cleanup special characters"""
-    # Remove zero-width spaces and other invisible unicode characters
-    text = ''.join(char for char in text if not unicodedata.category(char).startswith('C'))
-    
-    # Normalize unicode characters (e.g., convert different forms of the same character to a standard form)
-    text = unicodedata.normalize('NFKC', text)
-    
-    # Replace unicode bullets with standard ASCII
-    text = text.replace('•', '*').replace('●', '*')
-    
-    # Standardize whitespace
-    text = ' '.join(text.split())
+    text = unicodedata.normalize('NFC', text)
+    text = ftfy.fix_text(text) # Fix mojibake
     
     return text
 
