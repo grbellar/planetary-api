@@ -7,15 +7,15 @@ import ipaddress
 # TODO: Look into async support for multiple requests. FastAPI has async support. Maybe Flask does too.
 app = Flask(__name__)
 auth = HTTPTokenAuth(scheme='Planetary')
-PROXY_HEADER_TYPES = [
-        'True-Client-Ip',
-        'X-Forwarded-For',
-        'X-Real-Ip', 
-        'CF-Connecting-Ip',
-        'X-Client-Ip'
-    ]
-TRUSTED_PROXIES = os.getenv('TRUSTED_PROXIES').split(',')
-WHITELISTED_IPS = [ipaddress.ip_address(ip) for ip in os.getenv('WHITELISTED_IPS').split(',')]
+# PROXY_HEADER_TYPES = [
+#         'True-Client-Ip',
+#         'X-Forwarded-For',
+#         'X-Real-Ip', 
+#         'CF-Connecting-Ip',
+#         'X-Client-Ip'
+#     ]
+# TRUSTED_PROXIES = os.getenv('TRUSTED_PROXIES').split(',')
+# WHITELISTED_IPS = [ipaddress.ip_address(ip) for ip in os.getenv('WHITELISTED_IPS').split(',')]
 
 @auth.verify_token
 def verify_token(token):
@@ -25,20 +25,20 @@ def verify_token(token):
 
 
 # Not used right now.
-def allowed_ip(request):
-    if request.remote_addr in TRUSTED_PROXIES:
-        for proxy_type in PROXY_HEADER_TYPES:
-            if proxy_type in request.headers:
-                try:
-                    client_ip = ipaddress.ip_address(request.headers[proxy_type])
-                    return client_ip in WHITELISTED_IPS
-                except Exception as e:
-                    pass
-    try:
-        client_ip = ipaddress.ip_address(request.remote_addr)
-        return client_ip in WHITELISTED_IPS
-    except Exception as e:
-        return False
+# def allowed_ip(request):
+#     if request.remote_addr in TRUSTED_PROXIES:
+#         for proxy_type in PROXY_HEADER_TYPES:
+#             if proxy_type in request.headers:
+#                 try:
+#                     client_ip = ipaddress.ip_address(request.headers[proxy_type])
+#                     return client_ip in WHITELISTED_IPS
+#                 except Exception as e:
+#                     pass
+#     try:
+#         client_ip = ipaddress.ip_address(request.remote_addr)
+#         return client_ip in WHITELISTED_IPS
+#     except Exception as e:
+#         return False
 
 
 
