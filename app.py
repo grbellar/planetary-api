@@ -45,6 +45,9 @@ def verify_token(token):
 @app.post("/convert-to-text")
 @auth.login_required
 def convert():
+    print("Request Method:", request.method)
+    print("Request Headers:", request.headers)
+    print("Request JSON:", request.get_json())
     
     # Check if content-type is application/json
     if not request.is_json:
