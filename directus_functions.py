@@ -20,6 +20,10 @@ def update_talent(talent_id, resume_text):
     return response.json()
 
 def get_resume_file(file_id):
+    response = requests.get(f"{BASE_URL}/files/{file_id}", headers=HEADERS)
+    file_metadata = response.json()
+    file_type = file_metadata["data"]["type"]
+    print(file_type)
     file_content = requests.get(f"{BASE_URL}/assets/{file_id}", headers=HEADERS).content
     file_stream = BytesIO(file_content)
-    return file_stream
+    return (file_stream, file_type)

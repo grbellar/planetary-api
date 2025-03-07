@@ -1,8 +1,5 @@
 from docx import Document
 import pymupdf
-import tempfile
-from urllib.request import urlretrieve
-import os
 import unicodedata
 import ftfy
 
@@ -12,22 +9,6 @@ class DocumentConversionError(Exception):
     pass
 
 
-def create_temp_file_from_url(file_url):
-    # Ensure temp directory exists
-    custom_temp_dir = "temp-files"
-    os.makedirs(custom_temp_dir, exist_ok=True)
-
-    # Create a temporary file with a unique name
-    with tempfile.NamedTemporaryFile(delete=False, dir=custom_temp_dir) as tmp_file:
-        try:
-            # Download file contents to temp file
-            urlretrieve(file_url, tmp_file.name)
-            # Return the path to the temp new file
-            return tmp_file.name
-        except Exception as e:
-            raise Exception(f"Failed to download file: {str(e)}")
-
-
 def normalize_text(text):
     text = unicodedata.normalize('NFC', text)
     text = ftfy.fix_text(text) # Fix mojibake
@@ -35,12 +16,9 @@ def normalize_text(text):
     return text
 
 
-def docx_to_txt(docx_path):
-    local_docx_path = create_temp_file_from_url(docx_path)
+def docx_to_txt(docx_stream):
     try:
-        doc = Document(local_docx_path)
-        # Delete the temp file after the doc is created
-        os.remove(local_docx_path)
+        doc = Document(docx_stream)
         text_parts = []
         for paragraph in doc.paragraphs:
             text = paragraph.text.strip()
@@ -57,7 +35,6 @@ def docx_to_txt(docx_path):
 def pdf_to_text(pdf_stream):
     try:
         doc = pymupdf.open(stream=pdf_stream)
-        # Delete the temp file after the pdf is created
         text = []
         for page in doc:
             # Strip newlines and whitespace from each page's text
