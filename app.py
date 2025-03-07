@@ -2,20 +2,15 @@ from flask import Flask, jsonify, request, send_file
 from flask_httpauth import HTTPTokenAuth
 from functions import docx_to_txt, pdf_to_text
 import os
-import ipaddress
+from directus_functions import update_talent, get_all_talent_data, get_resume_file
+import json
+from pprint import pprint
+
 
 # TODO: Look into async support for multiple requests. FastAPI has async support. Maybe Flask does too.
 app = Flask(__name__)
 auth = HTTPTokenAuth(scheme='Planetary')
-# PROXY_HEADER_TYPES = [
-#         'True-Client-Ip',
-#         'X-Forwarded-For',
-#         'X-Real-Ip', 
-#         'CF-Connecting-Ip',
-#         'X-Client-Ip'
-#     ]
-# TRUSTED_PROXIES = os.getenv('TRUSTED_PROXIES').split(',')
-# WHITELISTED_IPS = [ipaddress.ip_address(ip) for ip in os.getenv('WHITELISTED_IPS').split(',')]
+
 
 @auth.verify_token
 def verify_token(token):
@@ -24,58 +19,47 @@ def verify_token(token):
     return False
 
 
-# Not used right now.
-# def allowed_ip(request):
-#     if request.remote_addr in TRUSTED_PROXIES:
-#         for proxy_type in PROXY_HEADER_TYPES:
-#             if proxy_type in request.headers:
-#                 try:
-#                     client_ip = ipaddress.ip_address(request.headers[proxy_type])
-#                     return client_ip in WHITELISTED_IPS
-#                 except Exception as e:
-#                     pass
-#     try:
-#         client_ip = ipaddress.ip_address(request.remote_addr)
-#         return client_ip in WHITELISTED_IPS
-#     except Exception as e:
-#         return False
-
-
-
 @app.post("/convert-to-text")
 @auth.login_required
 def convert():
-    print("Request Method:", request.method)
-    print("Request Headers:", request.headers)
-    print("Request JSON:", request.get_json())
-    
-    # Check if content-type is application/json
+    data = request.json
+    talent_id = data.get("talentId")
+    print(f"Newly created Talent ID: {talent_id}")
+        
+    # Check if content-type is application/json. TODO: I don't think this is reachable. There is a built in check somewhere that 
+    # fails before it gets here.
     if not request.is_json:
         return jsonify({"error": "Content-Type must be application/json"}), 400
     
-    file_url = request.json.get('fileUrl')
+    talent_data = get_all_talent_data(talent_id)
+    resume_file_id = talent_data["data"]["resumeFile"]
+    print(f"Resume File ID: {resume_file_id}")
+    pprint(f"Talent Data: {talent_data}")
+    file_stream = get_resume_file(resume_file_id)
+    print(f"File Stream: {file_stream}")
 
-    if not file_url.endswith(('.docx', 'pdf')):
-        return jsonify({"error": "Unsupported file format. File type must be a .docx, or .pdf"}), 400
+    # if not file_url.endswith(('.docx', 'pdf')):
+    #     return jsonify({"error": "Unsupported file format. File type must be a .docx, or .pdf"}), 400
 
-    if not file_url:
-        return jsonify({"error": "fileUrl is required"}), 400
+    # if not file_url:
+    #     return jsonify({"error": "fileUrl is required"}), 400
     
     # Convert Word
-    if file_url.endswith('.docx'):
-        try:
-            text = docx_to_txt(file_url)
-            return jsonify({"text": text}), 200
-        except Exception as e:
-            return jsonify({"error": str(e)}), 500
+    # if file_url.endswith('.docx'):
+    #     try:
+    #         text = docx_to_txt(file_url)
+    #         # update_talent(talent_id, text)
+    #         return jsonify({"good": "good"}), 200
+    #     except Exception as e:
+    #         return jsonify({"error": str(e)}), 500
     
     # Convert PDF
-    elif file_url.endswith('.pdf'):
-        try:
-            text = pdf_to_text(file_url)
-            return jsonify({"text": text}), 200
-        except Exception as e:
-            return jsonify({"error": str(e)}), 500
+    try:
+        text = pdf_to_text(file_stream)
+        return update_talent(talent_id, text)
+        # return jsonify({"text": text}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 # TODO: Add logging, especially for exceptions that currently pass silently
 

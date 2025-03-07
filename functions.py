@@ -54,12 +54,10 @@ def docx_to_txt(docx_path):
         raise DocumentConversionError(f"Error processing DOCX file: {str(e)}")
 
 
-def pdf_to_text(pdf_path):
-    local_pdf_path = create_temp_file_from_url(pdf_path)
+def pdf_to_text(pdf_stream):
     try:
-        doc = pymupdf.open(local_pdf_path)
+        doc = pymupdf.open(stream=pdf_stream)
         # Delete the temp file after the pdf is created
-        os.remove(local_pdf_path)
         text = []
         for page in doc:
             # Strip newlines and whitespace from each page's text
