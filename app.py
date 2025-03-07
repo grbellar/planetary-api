@@ -8,7 +8,7 @@ from pprint import pprint
 
 # TODO: Look into async support for multiple requests. FastAPI has async support. Maybe Flask does too.
 app = Flask(__name__)
-auth = HTTPTokenAuth(scheme='Planetary')
+auth = HTTPTokenAuth(scheme='Bearer')
 
 
 @auth.verify_token

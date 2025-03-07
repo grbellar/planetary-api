@@ -4,3 +4,6 @@ __pycache__
 /output
 /uploads
 spec.txt
+temp.*
+test.*
+curl.txt
