@@ -8,6 +8,7 @@ HEADERS = {
 }
 
 def get_all_talent_data(talent_id):
+    # If this fails, actual response code and data  is lost because the variable that is saving this function return value doesn't do anything.
     response = requests.get(f'{BASE_URL}/items/talent/{talent_id}', headers=HEADERS)
     return(response.json())
 

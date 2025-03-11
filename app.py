@@ -30,6 +30,7 @@ def convert():
     if not request.is_json:
         return jsonify({"error": "Content-Type must be application/json"}), 400
     
+    # TODO: Remove this sensitive data printing in console asap.
     talent_data = get_all_talent_data(talent_id)
     # TODO: Add try catch for if file id not None. The resumeFile field could be empty
     resume_file_id = talent_data["data"]["resumeFile"]
@@ -64,12 +65,3 @@ def convert():
             return jsonify({"error": str(e)}), 500
 
 # TODO: Add logging, especially for exceptions that currently pass silently
-
-
-@app.get("/get-file")
-def get_file():
-    file_path = 'spec.txt'
-    try:
-        return send_file(file_path, as_attachment=True, download_name='spec.txt')
-    except FileNotFoundError:
-        return "File not found", 404
